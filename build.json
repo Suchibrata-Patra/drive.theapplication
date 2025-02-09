@@ -1,0 +1,11 @@
+{
+    "settings": {
+        "separator": "-",
+        "responsiveSeparator": "--",
+        "utilitiesPrefix": "u",
+        "cssVariablesPrefix": "bricss",
+        "screenSizes": {}
+    },
+    "tokens": {},
+    "properties": {}
+}

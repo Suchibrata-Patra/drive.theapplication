@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheApp</title>
+    <link rel="icon" type="image/x-icon" href="/icons/cloud.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background: #e0e5ec;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: #e0e5ec;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-right: 2px solid rgb(18, 140, 210);
+            box-shadow: 10px 0px 20px #d2d7e1, -10px -10px 20px #ffffff;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+        }
+
+        .upload-box {
+            background: #e0e5ec;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgb(18, 140, 210);
+            /* box-shadow: inset 5px 5px 10px #babecc, inset -5px -5px 10px #ffffff; */
+            width: 100%;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            margin: 15px 0;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            outline: none;
+            background: #e0e5ec;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            background: #e0e5ec;
+            border-radius: 0px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            /* box-shadow: inset 5px 5px 10px #babecc, inset -5px -5px 10px #ffffff; */
+        }
+
+        #status {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* File Display Section */
+        .file-section {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .file-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .file-box {
+            width: 120px;
+            height: 150px;
+            background: #ffffff;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0px 20px 10px 20px;
+            /* box-shadow: 5px 5px 10px #babecc, -5px -5px 10px #ffffff; */
+        }
+
+        .file-box img {
+            width: auto;
+            height: 40px;
+            margin-bottom: 8px;
+        }
+
+        .file-box a {
+            font-size: 0.8rem;
+            text-decoration: none;
+            color: #000000;
+            font-weight: 300;
+            word-wrap: break-word;
+        }
+
+        .menu-container {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding-top: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .menu-content {
+            display: none;
+            position: absolute;
+            right: -20px;
+            top: 2rem;
+            background: #fff;
+            min-width: 80px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        .menu-content button {
+            width: 100%;
+            border: none;
+            background: none;
+            /* padding:2px 2px 12px 2px; */
+            background-color: rgb(220, 220, 220);
+            color: black;
+            border-radius: 4px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 400;
+        }
+
+        .menu-content button:hover {
+            background: #cdcdcd;
+        }
+
+        /* Show menu when clicked */
+        .menu-content.show {
+            display: block;
+        }
+
+        /* Ensure .file-box is positioned properly */
+        .file-box {
+            position: relative;
+            padding-top: 25px;
+        }
+
+        .custom-file-button {
+            display: inline-block;
+            background: rgb(18, 140, 210);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 400;
+            text-align: center;
+            transition: 0.3s ease-in-out;
+        }
+
+        .custom-file-button:hover {
+            background: rgb(18, 140, 210);
+        }
+        .search-bar{
+            padding:10px 40% 10px 1%;
+            font-weight: 300;
+            color: rgb(0, 0, 0);
+            border: 2px solid rgb(18, 140, 210);
+            margin-bottom: 2%;
+            border-radius: 50px;
+        }
+        .search-bar ::placeholder{
+            font-size: 1.4rem;
+            color: grey;
+        }
+        .loader {
+    display: inline-block;
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <img src="/icons/cloud.png" alt="Cloud" style="width: 50px; height: auto;">
+        <div class="upload-box">
+            <input type="file" id="fileInput" multiple hidden>
+            <label for="fileInput" class="custom-file-button">Choose Files</label>
+            <button onclick="uploadFile()">Upload</button>
+            <p id="status"></p>
+        </div>
+        <p id="totalSize" style="margin-top: 20px; font-weight: bold; color: #333;">Total Storage Used: 0 KB</p>
+
+        <div style="position: fixed;bottom: 5px;color: rgb(181, 181, 181); font-weight: 200;">
+            Developed by S.Patra
+        </div>
+    </div>
+
+    <div class="file-section">
+        <input type="text" id="searchBar" class="search-bar" placeholder="Search files..." onkeyup="searchFiles()">
+        <div class="file-container" id="fileList"></div>
+    </div>
+ <script>
+        async function fetchFiles() {
+    const response = await fetch("upload.php");
+    const data = await response.json();
+    const fileListElement = document.getElementById("fileList");
+    const totalSizeElement = document.getElementById("totalSize");
+
+    let totalSize = 0;
+
+    if (data.status === "success") {
+        fileListElement.innerHTML = "";
+        data.files.forEach(file => {
+            totalSize += file.size; // Sum up all file sizes
+
+            const fileBox = document.createElement("div");
+            fileBox.className = "file-box";
+
+            // Get file extension
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            let icon = "file-icon.png"; // Default file icon
+
+            if (["jpg", "jpeg", "png", "gif"].includes(fileExtension)) {
+                icon = "image-icon.png";
+            } else if (["pdf"].includes(fileExtension)) {
+                icon = "pdf_icon.png";
+            } else if (["zip", "rar"].includes(fileExtension)) {
+                icon = "zip-icon.png";
+            } else if (["mp4", "mkv", "avi"].includes(fileExtension)) {
+                icon = "video-icon.png";
+            } else if (["mp3", "wav"].includes(fileExtension)) {
+                icon = "audio-icon.png";
+            } else if (["r"].includes(fileExtension)) {
+                icon = "r_icon.png";
+            } else if (["xls", "xlsx", "xlsm", "xltx", "xltm"].includes(fileExtension)) {
+                icon = "excel_icon.png";
+            } else {
+                icon = "default.png";
+            }
+
+            const fileUrl = file.url;
+            const truncatedName = file.name.length > 14 ? file.name.substring(0, 10) + "..." : file.name;
+
+            fileBox.innerHTML = `
+                <div class="menu-container">
+                    <button class="menu-btn" onclick="toggleMenu(this)">⋮</button>
+                    <div class="menu-content">
+                        <button onclick="deleteFile('${file.name}', this)">Delete</button>
+                    </div>
+                </div>
+                <img src="icons/${icon}" alt="File Icon">
+                <a href="${fileUrl}" target="_blank" title="${file.name}">${truncatedName}</a>
+            `;
+
+            fileListElement.appendChild(fileBox);
+        });
+    } else {
+        fileListElement.innerHTML = "<p>No files uploaded yet.</p>";
+    }
+
+    // Convert total file size to readable format
+    function formatSize(bytes) {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1048576) return `${(bytes / 1024).toFixed(2)} KB`;
+        if (bytes < 1073741824) return `${(bytes / 1048576).toFixed(2)} MB`;
+        return `${(bytes / 1073741824).toFixed(2)} GB`;
+    }
+
+    totalSizeElement.innerHTML = `Total Storage Used: <b>${formatSize(totalSize)}</b>`;
+}
+
+
+        // Toggle Menu Function
+        function toggleMenu(button) {
+            const menuContent = button.nextElementSibling;
+            menuContent.classList.toggle("show");
+        }
+
+        // Delete File Function (Dummy Placeholder)
+        async function deleteFile(fileName, button) {
+            if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+                alert(`Deleted: ${fileName}`);
+                button.closest(".file-box").remove();
+                // TODO: Send delete request to the server
+            }
+        }
+
+        // Close any open menus when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!event.target.matches(".menu-btn")) {
+                document.querySelectorAll(".menu-content").forEach(menu => {
+                    menu.classList.remove("show");
+                });
+            }
+        });
+
+
+        function uploadFile() {
+    const fileInput = document.getElementById("fileInput");
+    const statusElement = document.getElementById("status");
+
+    if (!fileInput.files.length) {
+        alert("Please select at least one file.");
+        return;
+    }
+
+    const formData = new FormData();
+    for (let file of fileInput.files) {
+        formData.append("files[]", file);
+    }
+
+    // Add rotating loader animation
+    statusElement.innerHTML = `Uploading... <span class="loader">⏳</span>`;
+
+    fetch("upload.php", { method: "POST", body: formData })
+        .then(response => response.json())
+        .then(data => {
+            statusElement.innerHTML = `<span style="color: green;">✅ Upload Complete!</span>`;
+            fetchFiles();
+        })
+        .catch(error => {
+            statusElement.innerHTML = `<span style="color: red;">❌ Upload Failed!</span>`;
+        });
+}
+
+
+        window.onload = fetchFiles;
+    </script>
+    <script>
+        function searchFiles() {
+            const searchQuery = document.getElementById("searchBar").value.toLowerCase();
+            document.querySelectorAll(".file-box").forEach(box => {
+                box.style.display = box.querySelector("a").textContent.toLowerCase().includes(searchQuery) ? "flex" : "none";
+            });
+        }
+
+        function toggleMenu(button) {
+            button.nextElementSibling.classList.toggle("show");
+        }
+    </script>
+</body>
+
+</html>

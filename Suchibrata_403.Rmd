@@ -1,0 +1,73 @@
+---
+title: "Suchibrata"
+author: "Suchibrata Patra - 403"
+date: "2025-02-10"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+### part (a)
+```{r}
+rm(list=ls())
+library(ggplot2)
+library(tidyverse)
+library(plotly)
+data = read.csv("data.csv") ; data_scaled = scale(data[-1]) # Used this to 
+cov(data[-1]) # variability in the expenditure is varying w.r.t Food items
+cor(data[-1])
+```
+
+###Comments from Covariance Matrix
+Matrix is Symmetric.
+Meat seems to have highest Variation in Consumption Value.
+
+### Comments from Correlatino Matrix
+Matrix is symmetric.
+Meat and poultry items seems to have High Correlation values.
+Wine have Negative Correlation with Some of the food items.
+
+
+
+```{r}
+
+cov_matrix = cov(data_scaled)
+eigen_decomp = eigen(cov_matrix)
+eigenvalues = eigen_decomp$values
+eigenvectors = eigen_decomp$vectors
+
+# Selecting top 2 components
+selected_components = eigenvectors[, 1:2]
+
+# Transforming the data
+pca_data = as.data.frame(data_scaled %*% selected_components)
+colnames(pca_data) = c("x1", "x2")
+
+# Add first column of original DataSet as labels
+pca_data$label = data[, 1]
+
+p = ggplot(pca_data, aes(x = x1, y = x2)) +
+  geom_point(color = "coral", alpha = 2) +
+  geom_text(aes(label = label),size = 3,nudge_y = 0.2) +
+  labs(title = "Reduced Dimension",
+       x = "Component 1",
+       y = "Component 2") +
+  theme_minimal()
+
+final_plot = ggplotly(p) ; final_plot
+#I have added 'ggplotly()' So that tooltip is shown over there when the points are hovered.
+
+```
+
+
+# Comments 
+
+The x-axis and y-axis represent the first(x_1) and second principal components(x_2), respectively.
+These components are linear combinations of the original features that maximize variance.
+
+A specific data point labeled "CA5" is plotted near the origin on Component 1 (x-axis) and Component 2 (y-axis).
+The spread of points indicate variance explained by each principal component.
+Since 'CA5' is close to the origin, it suggests that it does not strongly contribute to variance along these components.
+
+
+
